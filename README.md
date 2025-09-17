@@ -1,2 +1,2 @@
-MINI_PROJECT 2K25
-projects
+Social Media Breach Risk Analyser
+Mini project 2K25
