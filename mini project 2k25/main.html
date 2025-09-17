@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Breach Risk Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --danger-color: #dc2626;
+            --warning-color: #f59e0b;
+            --success-color: #059669;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-color), #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .risk-score {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .score-low {
+            background: linear-gradient(45deg, var(--success-color), #10b981);
+            color: white;
+        }
+
+        .score-medium {
+            background: linear-gradient(45deg, var(--warning-color), #fbbf24);
+            color: white;
+        }
+
+        .score-high {
+            background: linear-gradient(45deg, var(--danger-color), #ef4444);
+            color: white;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .recommendations {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .recommendation-icon {
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .breach-data {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .breach-item {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .breach-platform {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .breach-details {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: var(--danger-color);
+            color: #fca5a5;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-color);
+            color: #fcd34d;
+        }
+
+        .alert-success {
+            background: rgba(5, 150, 105, 0.1);
+            border-color: var(--success-color);
+            color: #6ee7b7;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.25rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.875rem;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo"><i class="fas fa-shield-alt"></i> SecureGuard Analytics</h1>
+            <p class="subtitle">Advanced Social Media Breach Risk Analysis & Security Assessment Platform</p>
+            <div class="hero-image" style="margin: 2rem 0;">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f3baf888-3374-4773-86c9-1138303119af.png" alt="Cybersecurity dashboard with data analytics, security shields, and network monitoring visualizations in dark blue theme" style="width: 100%; height: 200px; object-fit: cover; border-radius: 16px; opacity: 0.8;" />
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('overview')">
+                <i class="fas fa-chart-line"></i> Overview
+            </div>
+            <div class="tab" onclick="switchTab('analysis')">
+                <i class="fas fa-search"></i> Risk Analysis
+            </div>
+            <div class="tab" onclick="switchTab('monitoring')">
+                <i class="fas fa-eye"></i> Monitoring
+            </div>
+            <div class="tab" onclick="switchTab('reports')">
+                <i class="fas fa-file-alt"></i> Reports
+            </div>
+        </div>
+
+        <div id="overview" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3 class="card-title">Account Security Score</h3>
+                    </div>
+                    <div class="risk-score">
+                        <div class="score-circle score-medium" id="overallScore">
+                            72
+                        </div>
+                        <p>Overall Security Rating</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 72%; background: linear-gradient(90deg, var(--warning-color), #fbbf24);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="card-title">Active Threats</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="threatChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3 class="card-title">Recent Breach Database</h3>
+                    </div>
+                    <div class="breach-data">
+                        <div class="breach-item">
+                            <div class="breach-platform">Facebook</div>
+                            <div class="breach-details">533M users affected<br>Apr 2021</div>
+                        </div>
+                        <div class="breach-item">
+                            <div class="breach-platform">LinkedIn</div>
+                            <div class="breach-details">700M users affected<br>Jun 2021</div>
+                        </div>
+                        <div class="breach-item">
+                            <div class="breach-platform">Twitter</div>
+                            <div class="breach-details">5.4M users affected<br>Jan 2022</div>
+                        </div>
+                        <div class="breach-item">
+                            <div class="breach-platform">Instagram</div>
+                            <div class="breach-details">49M users affected<br>May 2022</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3 class="card-title">Risk Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="analysis" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3 class="card-title">Password Strength Analyzer</h3>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Enter Password</label>
+                        <input type="password" class="input-field" id="passwordInput" placeholder="Enter your password" oninput="analyzePassword()">
+                    </div>
+                    <div id="passwordResults">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle"></i> Enter a password to analyze its strength
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3 class="card-title">Email Breach Checker</h3>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Email Address</label>
+                        <input type="email" class="input-field" id="emailInput" placeholder="Enter your email address">
+                    </div>
+                    <button class="btn btn-primary" onclick="checkEmailBreach()">
+                        <i class="fas fa-search"></i> Check Breaches
+                    </button>
+                    <div class="loading" id="emailLoading">
+                        <div class="spinner"></div>
+                        <p>Scanning breach databases...</p>
+                    </div>
+                    <div id="emailResults"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h3 class="card-title">Privacy Settings Assessment</h3>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Platform</label>
+                        <select class="input-field" id="platformSelect">
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="twitter">Twitter</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="tiktok">TikTok</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="assessPrivacySettings()">
+                        <i class="fas fa-check-circle"></i> Assess Settings
+                    </button>
+                    <div id="privacyResults"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <h3 class="card-title">Network Security Analysis</h3>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Network Name (SSID)</label>
+                        <input type="text" class="input-field" id="networkInput" placeholder="Enter network name">
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeNetwork()">
+                        <i class="fas fa-shield-alt"></i> Analyze Network
+                    </button>
+                    <div id="networkResults"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monitoring" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="card-title">Real-time Activity Monitor</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                    <button class="btn btn-primary" onclick="startMonitoring()" id="monitorBtn">
+                        <i class="fas fa-play"></i> Start Monitoring
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3 class="card-title">Security Alerts</h3>
+                    </div>
+                    <div id="alertsList">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>High Risk:</strong> Suspicious login attempt from unknown location
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-eye"></i>
+                            <strong>Medium Risk:</strong> Account accessed from new device
+                        </div>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Secure:</strong> Two-factor authentication enabled
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 class="card-title">Login Location Tracking</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3 class="card-title">Social Engineering Analysis</h3>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Profile URL</label>
+                        <input type="url" class="input-field" id="profileInput" placeholder="Enter social media profile URL">
+                    </div>
+                    <button class="btn btn-primary" onclick="analyzeSocialEngineering()">
+                        <i class="fas fa-search"></i> Analyze Profile
+                    </button>
+                    <div id="socialResults"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3 class="card-title">Security Assessment Report</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="reportChart"></canvas>
+                </div>
+                <button class="btn btn-primary" onclick="generateReport()">
+                    <i class="fas fa-download"></i> Generate Full Report
+                </button>
+            </div>
+        </div>
+
+        <div class="recommendations">
+            <h3 style="margin-bottom: 2rem; font-size: 1.5rem;">
+                <i class="fas fa-lightbulb" style="margin-right: 0.5rem; color: var(--warning-color);"></i>
+                Security Recommendations
+            </h3>
+            <div id="recommendationsList">
+                <div class="recommendation-item">
+                    <i class="fas fa-key recommendation-icon" style="color: var(--warning-color);"></i>
+                    <div>
+                        <strong>Enable Two-Factor Authentication</strong><br>
+                        Add an extra layer of security to your accounts by enabling 2FA wherever possible.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-shield-alt recommendation-icon" style="color: var(--success-color);"></i>
+                    <div>
+                        <strong>Use Strong, Unique Passwords</strong><br>
+                        Create complex passwords with at least 12 characters including symbols and numbers.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-eye-slash recommendation-icon" style="color: var(--primary-color);"></i>
+                    <div>
+                        <strong>Review Privacy Settings Regularly</strong><br>
+                        Check and update your privacy settings on all social media platforms monthly.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <i class="fas fa-clock recommendation-icon" style="color: var(--warning-color);"></i>
+                    <div>
+                        <strong>Monitor Account Activity</strong><br>
+                        Regularly check login history and active sessions on your accounts.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isMonitoring = false;
+        let activityChart, riskChart, threatChart, locationChart, reportChart;
+
+        // Initialize charts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            updateOverallScore();
+        });
+
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function initializeCharts() {
+            // Threat Chart
+            const threatCtx = document.getElementById('threatChart').getContext('2d');
+            threatChart = new Chart(threatCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Threats Detected',
+                        data: [12, 19, 3, 5, 2, 10],
+                        borderColor: '#dc2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Risk Distribution Chart
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+            riskChart = new Chart(riskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: ['#059669', '#f59e0b', '#dc2626'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+
+            // Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            activityChart = new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Login Attempts',
+                        data: [2, 1, 15, 25, 18, 8],
+                        backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                        borderColor: '#2563eb',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Location Chart
+            const locationCtx = document.getElementById('locationChart').getContext('2d');
+            locationChart = new Chart(locationCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['United States', 'Canada', 'UK', 'Germany', 'Australia', 'Japan'],
+                    datasets: [{
+                        label: 'Login Frequency',
+                        data: [90, 5, 2, 1, 1, 1],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: '#2563eb',
+                        pointBackgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9' }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: { color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+
+            // Report Chart
+            const reportCtx = document.getElementById('reportChart').getContext('2d');
+            reportChart = new Chart(reportCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [
+                        {
+                            label: 'Security Score',
+                            data: [65, 72, 68, 75],
+                            borderColor: '#059669',
+                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Risk Level',
+                            data: [35, 28, 32, 25],
+                            borderColor: '#dc2626',
+                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f1f5f9' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function analyzePassword() {
+            const password = document.getElementById('passwordInput').value;
+            const resultsDiv = document.getElementById('passwordResults');
+            
+            if (!password) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> Enter a password to analyze its strength
+                    </div>
+                `;
+                return;
+            }
+
+            let score = 0;
+            let feedback = [];
+
+            // Length check
+            if (password.length >= 12) score += 25;
+            else if (password.length >= 8) score += 15;
+            else feedback.push("Use at least 12 characters");
+
+            // Character variety
+            if (/[a-z]/.test(password)) score += 15;
+            else feedback.push("Include lowercase letters");
+
+            if (/[A-Z]/.test(password)) score += 15;
+            else feedback.push("Include uppercase letters");
+
+            if (/[0-9]/.test(password)) score += 15;
+            else feedback.push("Include numbers");
+
+            if (/[^A-Za-z0-9]/.test(password)) score += 20;
+            else feedback.push("Include special characters");
+
+            // Common patterns
+            if (!/(.)\1{2,}/.test(password)) score += 10;
+            else feedback.push("Avoid repeating characters");
+
+            let strength = '';
+            let alertClass = '';
+            let color = '';
+
+            if (score >= 80) {
+                strength = 'Very Strong';
+                alertClass = 'alert-success';
+                color = '#059669';
+            } else if (score >= 60) {
+                strength = 'Strong';
+                alertClass = 'alert-success';
+                color = '#059669';
+            } else if (score >= 40) {
+                strength = 'Medium';
+                alertClass = 'alert-warning';
+                color = '#f59e0b';
+            } else {
+                strength = 'Weak';
+                alertClass = 'alert-danger';
+                color = '#dc2626';
+            }
+
+            resultsDiv.innerHTML = `
+                <div class="alert ${alertClass}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span><strong>Password Strength: ${strength}</strong></span>
+                        <span style="font-size: 1.5rem; font-weight: bold;">${score}/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${score}%; background: ${color};"></div>
+                    </div>
+                    ${feedback.length > 0 ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Suggestions:</strong>
+                            <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                                ${feedback.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function checkEmailBreach() {
+            const email = document.getElementById('emailInput').value;
+            const loadingDiv = document.getElementById('emailLoading');
+            const resultsDiv = document.getElementById('emailResults');
+
+            if (!email) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Please enter an email address
+                    </div>
+                `;
+                return;
+            }
+
+            loadingDiv.classList.add('active');
+            resultsDiv.innerHTML = '';
+
+            // Simulate API call
+            setTimeout(() => {
+                loadingDiv.classList.remove('active');
+                
+                // Simulate breach data
+                const breaches = [
+                    { platform: 'LinkedIn', date: '2021-06-01', affected: '700M' },
+                    { platform: 'Facebook', date: '2021-04-01', affected: '533M' },
+                    { platform: 'Adobe', date: '2013-10-01', affected: '153M' }
+                ];
+
+                const foundBreaches = Math.random() > 0.3 ? breaches.slice(0, Math.floor(Math.random() * 3) + 1) : [];
+
+                if (foundBreaches.length > 0) {
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>⚠️ ${foundBreaches.length} breach(es) found!</strong>
+                        </div>
+                        ${foundBreaches.map(breach => `
+                            <div class="breach-item" style="margin-top: 1rem;">
+                                <div class="breach-platform">${breach.platform}</div>
+                                <div class="breach-details">${breach.affected} users affected<br>${new Date(breach.date).toLocaleDateString()}</div>
+                            </div>
+                        `).join('')}
+                        <div class="alert alert-warning" style="margin-top: 1rem;">
+                            <i class="fas fa-shield-alt"></i>
+                            <strong>Recommendation:</strong> Change your password immediately and enable 2FA
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Good news!</strong> No breaches found for this email address
+                        </div>
+                    `;
+                }
+            }, 2000);
+        }
+
+        function assessPrivacySettings() {
+            const platform = document.getElementById('platformSelect').value;
+            const resultsDiv = document.getElementById('privacyResults');
+
+            const assessments = {
+                facebook: {
+                    score: 65,
+                    issues: ['Public friend list', 'Location sharing enabled', 'Ad targeting active'],
+                    recommendations: ['Make friend list private', 'Disable location services', 'Opt out of ad targeting']
+                },
+                instagram: {
+                    score: 78,
+                    issues: ['Story location visible', 'Contact syncing enabled'],
+                    recommendations: ['Hide story location', 'Disable contact syncing']
+                },
+                twitter: {
+                    score: 82,
+                    issues: ['Email discoverability enabled'],
+                    recommendations: ['Disable email discoverability', 'Enable login verification']
+                },
+                linkedin: {
+                    score: 88,
+                    issues: ['Profile public to search engines'],
+                    recommendations: ['Limit profile visibility to LinkedIn members only']
+                },
+                tiktok: {
+                    score: 45,
+                    issues: ['Profile public', 'Direct messages from anyone', 'Data collection extensive'],
+                    recommendations: ['Set profile to private', 'Limit DMs to friends', 'Review data settings']
+                }
+            };
+
+            const assessment = assessments[platform];
+            const alertClass = assessment.score >= 80 ? 'alert-success' : assessment.score >= 60 ? 'alert-warning' : 'alert-danger';
+
+            resultsDiv.innerHTML = `
+                <div class="alert ${alertClass}" style="margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span><strong>${platform.charAt(0).toUpperCase() + platform.slice(1)} Privacy Score</strong></span>
+                        <span style="font-size: 1.5rem; font-weight: bold;">${assessment.score}/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${assessment.score}%; background: ${assessment.score >= 80 ? '#059669' : assessment.score >= 60 ? '#f59e0b' : '#dc2626'};"></div>
+                    </div>
+                    ${assessment.issues.length > 0 ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Issues Found:</strong>
+                            <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                                ${assessment.issues.map(issue => `<li>${issue}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 1rem;">
+                        <strong>Recommendations:</strong>
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            ${assessment.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function analyzeNetwork() {
+            const networkName = document.getElementById('networkInput').value;
+            const resultsDiv = document.getElementById('networkResults');
+
+            if (!networkName) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Please enter a network name
+                    </div>
+                `;
+                return;
+            }
+
+            // Simulate network analysis
+            const securityLevel = Math.random();
+            let result, alertClass, recommendations;
+
+            if (securityLevel > 0.7) {
+                result = { level: 'Secure', score: 85 };
+                alertClass = 'alert-success';
+                recommendations = ['Network appears secure', 'Continue using with confidence'];
+            } else if (securityLevel > 0.4) {
+                result = { level: 'Moderate', score: 65 };
+                alertClass = 'alert-warning';
+                recommendations = ['Consider using VPN', 'Avoid sensitive transactions', 'Update router firmware'];
+            } else {
+                result = { level: 'Vulnerable', score: 25 };
+                alertClass = 'alert-danger';
+                recommendations = ['Do not use for sensitive data', 'Use VPN immediately', 'Find alternative network'];
+            }
+
+            resultsDiv.innerHTML = `
+                <div class="alert ${alertClass}" style="margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span><strong>Network Security: ${result.level}</strong></span>
+                        <span style="font-size: 1.5rem; font-weight: bold;">${result.score}/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${result.score}%; background: ${result.score >= 80 ? '#059669' : result.score >= 60 ? '#f59e0b' : '#dc2626'};"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <strong>Recommendations:</strong>
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startMonitoring() {
+            const btn = document.getElementById('monitorBtn');
+            
+            if (!isMonitoring) {
+                isMonitoring = true;
+                btn.innerHTML = '<i class="fas fa-stop"></i> Stop Monitoring';
+                btn.style.background = 'linear-gradient(45deg, #dc2626, #ef4444)';
+                
+                // Simulate real-time monitoring
+                const interval = setInterval(() => {
+                    if (!isMonitoring) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    
+                    // Update activity chart with new data
+                    const newData = Math.floor(Math.random() * 30);
+                    activityChart.data.datasets[0].data.push(newData);
+                    activityChart.data.labels.push(new Date().toLocaleTimeString());
+                    
+                    if (activityChart.data.labels.length > 10) {
+                        activityChart.data.labels.shift();
+                        activityChart.data.datasets[0].data.shift();
+                    }
+                    
+                    activityChart.update();
+                }, 2000);
+            } else {
+                isMonitoring = false;
+                btn.innerHTML = '<i class="fas fa-play"></i> Start Monitoring';
+                btn.style.background = 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))';
+            }
+        }
+
+        function analyzeSocialEngineering() {
+            const profileUrl = document.getElementById('profileInput').value;
+            const resultsDiv = document.getElementById('socialResults');
+
+            if (!profileUrl) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Please enter a profile URL
+                    </div>
+                `;
+                return;
+            }
+
+            // Simulate social engineering analysis
+            const riskFactors = [
+                'Personal information publicly visible',
+                'Location data frequently shared',
+                'Employment details exposed',
+                'Family connections visible',
+                'Daily routine patterns detectable'
+            ];
+
+            const detectedRisks = riskFactors.filter(() => Math.random() > 0.4);
+            const riskScore = Math.max(100 - (detectedRisks.length * 20), 10);
+
+            const alertClass = riskScore >= 80 ? 'alert-success' : riskScore >= 60 ? 'alert-warning' : 'alert-danger';
+
+            resultsDiv.innerHTML = `
+                <div class="alert ${alertClass}" style="margin-top: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span><strong>Social Engineering Risk</strong></span>
+                        <span style="font-size: 1.5rem; font-weight: bold;">${riskScore}/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${riskScore}%; background: ${riskScore >= 80 ? '#059669' : riskScore >= 60 ? '#f59e0b' : '#dc2626'};"></div>
+                    </div>
+                    ${detectedRisks.length > 0 ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Risk Factors Detected:</strong>
+                            <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                                ${detectedRisks.map(risk => `<li>${risk}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    <div style="margin-top: 1rem;">
+                        <strong>Recommendations:</strong>
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            <li>Review privacy settings</li>
+                            <li>Limit personal information sharing</li>
+                            <li>Be cautious with location tagging</li>
+                            <li>Avoid posting routine patterns</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateReport() {
+            // Simulate report generation
+            const reportData = {
+                overallScore: 72,
+                passwordStrength: 85,
+                privacySettings: 68,
+                networkSecurity: 75,
+                socialEngineering: 60
+            };
+
+            alert(`Security Assessment Report Generated!\n\nOverall Score: ${reportData.overallScore}/100\n\nKey Findings:\n• Password Strength: ${reportData.passwordStrength}/100\n• Privacy Settings: ${reportData.privacySettings}/100\n• Network Security: ${reportData.networkSecurity}/100\n• Social Engineering Risk: ${reportData.socialEngineering}/100\n\nDetailed report would be downloaded as PDF in a real implementation.`);
+        }
+
+        function updateOverallScore() {
+            // Simulate dynamic score calculation
+            const scores = [72, 85, 68, 75, 60];
+            const average = scores.reduce((a, b) => a + b, 0) / scores.length;
+            
+            const scoreElement = document.getElementById('overallScore');
+            const scoreValue = Math.round(average);
+            
+            scoreElement.textContent = scoreValue;
+            
+            // Update score circle color based on value
+            scoreElement.className = 'score-circle';
+            if (scoreValue >= 80) {
+                scoreElement.classList.add('score-low');
+            } else if (scoreValue >= 60) {
+                scoreElement.classList.add('score-medium');
+            } else {
+                scoreElement.classList.add('score-high');
+            }
+        }
+
+        // Simulate dynamic data updates
+        setInterval(() => {
+            if (Math.random() > 0.8) {
+                updateOverallScore();
+                
+                // Add new alert occasionally
+                if (Math.random() > 0.9) {
+                    const alertsList = document.getElementById('alertsList');
+                    const newAlert = document.createElement('div');
+                    newAlert.className = 'alert alert-warning';
+                    newAlert.innerHTML = `
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Info:</strong> New security update available for your account
+                    `;
+                    alertsList.insertBefore(newAlert, alertsList.firstChild);
+                    
+                    // Remove old alerts if too many
+                    if (alertsList.children.length > 5) {
+                        alertsList.removeChild(alertsList.lastChild);
+                    }
+                }
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
+
