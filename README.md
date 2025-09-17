@@ -1,2 +1,2 @@
-# chota-project
-important files
+MINI_PROJECT 2K25
+projects
